@@ -27,11 +27,10 @@ header: |
 
 Note that these notes are based on the 2023v3 version of the cryptography book.
 
-# Table of Contents
-
-<!--toc:start-->
-- [Curriculum](#curriculum)
-<!--toc:end-->
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{3}
+\tableofcontents
+\pagebreak
 
 \newpage
 
@@ -109,15 +108,50 @@ else, such as RSA+hash signatures and the proof that secure hash + secure
 signature scheme is secure. Or you can do the one-time signatures based on
 hash functions and the proof that they are secure.
 
+\newpage
+
 # Information theory and Cryptography (Chapter 5)
 
+## Disposition (Kirk)
+
+<!-- TODO: Add subbullets -->
+- Perfect Security
+- Entropy
+- Unicity Distance
+
+## Notes
+
+### Perfect Security
+
+\newpage
+
 # Symmetric (secret-key) cryptography (Chapter 6)
+## Disposition (Kirk)
+
+<!-- TODO: Add subbullets -->
+- Definitely AES
+- PRF and CPA security
+- CBC/CTR
+- CPA security proof for CBC/CTR
+- At least understand the block cipher...
+
+## Disposition
+
+\newpage
 
 # Public-key cryptography from Factoring (Chapter 7 & 8)
 
+\newpage
+
 # Public-key cryptography based on discrete log and LWE (Chapter 9 & 10, definition of CPS security in chapter 8)
+
+\newpage
 
 # Symmetric authentication and hash functions (Chapter 11)
 
+\newpage
+
 # Signature schemes (Chapter 12)
+
+\newpage
 
