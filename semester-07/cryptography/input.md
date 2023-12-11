@@ -188,7 +188,7 @@ $A$ occurred, then you have learned $\log_2(1/p)$ bits of information
 (Optionally something related to confidentiality and authenticity)
 
 For a symmetric system, there are 3 finite sets given; the key
-space $\kappa$, the plaintext space $\Rho$ and the ciphertext space $\ciphertextspace$.
+space $\kappa$, the plaintext space $\rho$ and the ciphertext space $\cipherspace$.
 
 
 
