@@ -136,7 +136,7 @@ the plaintext.
 
 \newpage
 
-# Symmetric (secret-key) cryptography (Chapter 6)
+# Symmetric (secret-key) cryptography (Chapter 4.1 + 6)
 ## Disposition (Kirk)
 
 <!-- TODO: Add subbullets -->
@@ -147,8 +147,28 @@ the plaintext.
 - At least understand the block cipher...
 
 ## Disposition (Berg)
+- Symmetric Cryptosystem definition (chap 4.1)
+- DES definition
+  - Feistel ciphers
+- AES definition 
+- (High level definition of Block Ciphers)
+- PRF security 
+- CPA security 
+- CBC mode
+- CTR mode 
+- Stream ciphers 
+- (Differential & Linear Cryptanalysis)
 
 ## Notes
+
+### Symmetric Cryptosystems
+![Symmetric Cryptosystem](images/symmetric_cryptosystem.jpg)
+(Optionally something related to confidentiality and authenticity)
+
+For a symmetric system, there are 3 finite sets given; the key
+space $\kappa$, the plaintext space $\Rho$ and the ciphertext space $\ciphertextspace$.
+
+
 
 \newpage
 
