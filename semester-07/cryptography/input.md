@@ -5,14 +5,16 @@ author:
 - Mikkel Skafsgaard Berg
 date: \today
 geometry: margin=2cm
+fontsize: 11pt
 #linkcolor: blue
 header: |
   \usepackage[style=iso]{datetime2}
   \usepackage{amsmath,bm}
   \newcommand*\mod{\bmod}
   \newcommand*\Z{\mathbb{Z}}
-  \renewcommand*\plaintextspace{\mathcal{P}}
-  \newcommand*\ciphertextspace{\mathcal{C}}
+  \renewcommand*\plainspace{\mathcal{P}}
+  \renewcommand*\cipherspace{\mathcal{C}}
+  \renewcommand*\keyspace{\mathcal{K}}
   \newcommand*\B{\mathbb{B}}
   \newcommand*\a{\alpha}
   \newcommand*\b{\beta}
@@ -85,7 +87,7 @@ it works.
 
 The DL, DH and DDH problems, and how they relate. The El Gamal cryptosystem
 and proof that it is secure if DDH is hard. Then some example of groups we
-can use, can be a subgroup of Z_p*, or you can talk about elliptic curves. You
+can use, can be a subgroup of $\Z_p^*$, or you can talk about elliptic curves. You
 can also put less emphasis on El Gamal, for instance skip the example groups
 and go to LWE instead, define the problem and the cryptosystem and do the
 proof from the exercise that decryption works under a certain assumption
@@ -130,9 +132,29 @@ hash functions and the proof that they are secure.
 Below we have the definition for perfect security:
 
 **Definition 5.1:** A cryptosystem has perfect security if for all $x \in
-\plaintextspace$ and $y \in \ciphertextspace$, it holds that $P[x|y] = P[x].$  
+\plainspace$ and $y \in \cipherspace$, it holds that $P[x|y] = P[x].$  
 **TLDR:** Information about the ciphertext gives you _no_ information about
 the plaintext.
+
+Why do you need as many plaintexts as ciphertexts under perfect security?
+
+$|\cipherspace| \geq |\plainspace|$: This is true for all crypto systems in
+order for decryption to function correctly.
+
+$|\keyspace| \geq |\cipherspace|$: For a fixed plaintext $x$ must be able to
+hit every ciphertext $y$, otherwise an adversary could conclude that $E(x)
+\neq y$ and therefore learn information from $y$.
+
+Therefore $|\keyspace| \geq |\cipherspace| \geq |\plainspace|$.
+
+### Entropy
+
+**Definition 5.6:** Let $X$ be a random variable that takes values $x_1,
+..., x_n$ with probabilities $p_1, ..., p_n.$ Then the entropy of $X$,
+written $H(X)$, is defined to be:
+$$H(X) = \sum^n_{i=1} p_i \log_2(1/p_i)$$
+**TLDR:** If an event $A$ occurs with probability $p$ and you are told that
+$A$ occurred, then you have learned $\log_2(1/p)$ bits of information
 
 \newpage
 
