@@ -11,6 +11,8 @@ header: |
   \usepackage{amsmath,bm}
   \newcommand*\mod{\bmod}
   \newcommand*\Z{\mathbb{Z}}
+  \renewcommand*\plaintextspace{\mathcal{P}}
+  \newcommand*\ciphertextspace{\mathcal{C}}
   \newcommand*\B{\mathbb{B}}
   \newcommand*\a{\alpha}
   \newcommand*\b{\beta}
@@ -119,9 +121,18 @@ hash functions and the proof that they are secure.
 - Entropy
 - Unicity Distance
 
+## Disposition (Berg)
+
 ## Notes
 
 ### Perfect Security
+
+Below we have the definition for perfect security:
+
+**Definition 5.1:** A cryptosystem has perfect security if for all $x \in
+\plaintextspace$ and $y \in \ciphertextspace$, it holds that $P[x|y] = P[x].$  
+**TLDR:** Information about the ciphertext gives you _no_ information about
+the plaintext.
 
 \newpage
 
@@ -135,23 +146,45 @@ hash functions and the proof that they are secure.
 - CPA security proof for CBC/CTR
 - At least understand the block cipher...
 
-## Disposition
+## Disposition (Berg)
+
+## Notes
 
 \newpage
 
 # Public-key cryptography from Factoring (Chapter 7 & 8)
+## Disposition (Kirk)
+
+## Disposition (Berg)
+
+## Notes
 
 \newpage
 
 # Public-key cryptography based on discrete log and LWE (Chapter 9 & 10, definition of CPS security in chapter 8)
+## Disposition (Kirk)
+
+## Disposition (Berg)
+
+## Notes
 
 \newpage
 
 # Symmetric authentication and hash functions (Chapter 11)
+## Disposition (Kirk)
+
+## Disposition (Berg)
+
+## Notes
 
 \newpage
 
 # Signature schemes (Chapter 12)
+## Disposition (Kirk)
+
+## Disposition (Berg)
+
+## Notes
 
 \newpage
 
