@@ -375,27 +375,169 @@ $\qed$
 - At least understand the block cipher...
 
 ## Disposition (Berg)
-- Symmetric Cryptosystem definition (chap 4.1)
-- DES definition
-  - Feistel ciphers
-- AES definition 
-- (High level definition of Block Ciphers)
-- PRF security 
-- CPA security 
-- CBC mode
-- CTR mode 
-- Stream ciphers 
-- (Differential & Linear Cryptanalysis)
+- Symmetric cryptosystems  
+  - 3 sets $\rightarrow$ 3 algorithms
+- PRF-security 
+  - Block ciphers
+- CPA-security 
+  - CBC 
+  - CBC proof 
 
 ## Notes
 
 ### Symmetric Cryptosystems
-![Symmetric Cryptosystem](images/symmetric_cryptosystem.jpg)
+![Symmetric Cryptosystem](images/symmetric-cryptosystems/symmetric_cryptosystem.jpg)
 (Optionally something related to confidentiality and authenticity)
 
-For a symmetric system, there are 3 finite sets given; the key
-space $\kappa$, the plaintext space $\rho$ and the ciphertext space $\cipherspace$.
+For a symmetric cryptosystem, we need 3 finite sets which will define all possible values of the system:
 
+- The key space $\keyspace$  
+- The plaintext space $\plainspace$  
+- The ciphertext space $\cipherspace$  
+
+To generate values from these sets, we must have 3 corresponding algorithms, each responsible for outputting values of a set:  
+
+- $G \rightarrow K \in \keyspace$ (\textit{G}enerates keys): Probabilistic. Usually uniform in $\keyspace$.  
+- $E: E_K(x) = y \in \cipherspace$ ($\textit{E}$ncrypts plaintexts): (Probabilistic). Ciphertext's probability distribution is determined by \textit{K} and \textit{x}, typically uniform in some subset of the ciphertexts.  
+- $D: D_K(y) = x \in \plainspace$ ($\textit{D}$ecrypts ciphertexts): (Probabilistic)  
+
+This triple of algorithms (G, E, D) constitutes the given cryptosystem.
+
+We always require the following basic relationship between $(G, E, D)$: For any $x \in \plainspace$, $x = D_K(E_K(x))$ 
+**TLDR:** For any key $\textit{K}$ output by $\textit{G}$, correct decryption is possible.  
+This says nothing about security however.
+
+### PRF Security
+In terms of security, we would like the encryption schemes of our system to be $\textit{pseudo}$-randomly secure, meaning that it must act like a pseudo-random function (PRF). In general, a PRF is a function that is inherently $\textit{deterministic}$ but behaves like a $\textit{random}$ one. In order to model this, we say that some adversary plays the following game: _draw PRF Game_
+
+We want the $Adv_A(O_{real}, O_{ideal}) \leq \epsilon$. If this is the case, we say that the probability of him succeeding in an attack on our system is $\textit{negligible}$, meaning we deem it infeasible in practice. 
+ 
+More formally, we want our PRF's to be secure as given by the following definition:  
+**Definition - PRF Security:**
+    $\left\{f_K \mid K \in\{0,1\}^k\right\}$ is $(t, q, \epsilon)$ PRF-secure if $Adv_A\left(O_{\text {Real }}, O_{\text {Ideal }}\right) \leq \epsilon$  
+    (We say that $\left\{f_K \mid K \in\{0,1\}^k\right\}$ is $(t, q, \epsilon)$ PRF-secure, if any adversary $A$ that runs in time at most $t$ and makes at most $q$ queries to the oracle, satisfies $Adv_A\left(O_{\text {Real }}, O_{\text {Ideal }}\right) \leq \epsilon$.)
+Where $\left\{f_K \mid K \in\{0,1\}^k\right\}$ denotes a family of functions mapping $\plainspace \rightarrow \cipherspace$. For a symmetric and deterministic encryption scheme $f_K$ is replaced by $E_K$. (Just like the set of all DES functions. Each $f_K: \{0,1\}^n \rightarrow \{0,1\}^m$. The advantage is defined as $Adv_A\left(O_{\text {Real }}, O_{\text {Ideal }}\right) = |p(A,0) - p(A,1)|$.) 
+
+Examples of PRF-secure cryptosystems which we've seen in the course are DES and AES, which are two types of block ciphers. They have the following properties: $\textit{G}$ outputs a $\textit{fixed}$ length key, chosen uniformly at random, takes as input a bitstring of $\textit{fixed}$ length and outputs a ciphertext of the $\textit{same}$ length. 
+
+### CPA Security
+Unfortunately, despite a cryptosystem being PRF-secure, it still suffers from information leakage because an adversary can easily detect duplicate messages, $\textit{if we're using the same key}$, since each input maps to the same output, once the key is fixed. Thus, we would like introduce some notion of randomness in $\textit{E}$. For such probabilistic encryption schemes we require that the adversary $\textit{cannot}$ tell the difference between between a real encryption of a message $\textit{x}$ he chooses. Thus, duplicate messages can no longer be detected.
+
+In other words, we want our encryption schemes to be secure against a chosen-plaintext-attack (CPA):
+**Definition - Chosen-Plaintext Attack(CPA)-security:** <!-- Perhaps just extend PRF security definition with mu. I.e. this one handles non-fixed length inputs and is probabilistic --> 
+     $(G, E, D)$ is $(t, q, \mu, \epsilon)$ CPA-secure if $\operatorname{Adv}_A\left(O_{\text {Real }}, O_{\text {Ideal }}\right) \leq \epsilon$
+     (We say the cryptosystem $(G, E, D)$ is $(t, q, \mu, \epsilon)$ CPA-secure, if for any adversary $A$ that runs in time at most $t$, and makes at most $q$ queries to the oracle, with plaintexts consisting of a total of $\mu$ bits, it holds that $\operatorname{Adv}_A\left(O_{\text {Real }}, O_{\text {Ideal }}\right) \leq \epsilon$.)
+
+Here the difference in security-parameters is $\mu$, which denotes the number of bits an adversary encrypts. We need to take this into account, because systems that are CPA secure, may also handle variable length input, which we will see shortly.
+Under this stronger notion of security, we need to update our model, where the adversary instead plays this variation of the PRF-game: _draw CPA game_ 
+<!-- Maybe add the textual description of the two games to appendix and reference these at each drawing. -->
+
+![](images/symmetric-cryptosystems/PRF-CPA-Security.png)
+
+A way to inject this randomness and achieve CPA security for e.g. DES is by using a so-called $\textit{mode of operation}$, such as Cipher Block Chaining (CBC). The way that CBC mode works is by constructing a new cryptosystem $(G,E,D)$ from the PRF-secure system $(G',E',D')$, where $G = G'$. As an added bonus, this system can handle variable length input. For simplicity $\plainspace$ for $(G',E',D')$ will be all strings divisble by $n$, the blocksize of $(G,E,D)$. 
+_draw CBC mode_
+
+In turns out that in using CBC, we achieve a greater level of security, namely one that is secure against the previously mentioned, chosen-plaintext-attack (CPA). This property is encapsulated in the following theorem: 
+
+**Theorem:**
+    If $(G, E, D)$ is $\left(t, q, \epsilon\right)$ PRF-secure then $(G', E', D')$ using CBC is $(t^{\prime}, q^{\prime} \mu, \epsilon^{\prime})$ CPA-secure for any $q^{\prime}$, and for
+$$
+\epsilon^{\prime}=\epsilon+\left(\frac{\mu}{n}\right)^2 \cdot \frac{1}{2^n} = \epsilon+\frac{\mu^2}{n^2\cdot2^n} 
+$$
+provided that
+$$
+t^{\prime} \leq t, \quad \frac{\mu}{n} \leq q
+$$
+
+Intuitively, what this results says is: as long as CBC encryption
+using $(G, E, D)$ is attacked by an adversary who is no more powerful\footnote{(t,q) are a measure of the adversaries computational power. $\epsilon$ is a measure of the probability of success for an attack.} than what
+$(G, E, D)$ can handle, the probability of the attack being successful will be no better than $\epsilon'=\epsilon+\left(\frac{\mu}{n}\right)^2 \cdot \frac{1}{2^n}$. 
+We'll refer to $\textit{blocks}$ as bit strings of length $\textit{n}$, which is the block-size of the original system. 
+We note that $(\frac{\mu}{n})^2$ is the number of blocks that are encrypted during CBC, squared. $\epsilon'$ and $\epsilon$ will then be roughly equal as long as the number of blocks is much less than $2^n$, since the fraction would then go toward 0. A heuristic given in the book is $(\frac{\mu}{n})^2 << 2^{n/2} = \sqrt{2^n}$.
+
+#### Proof: CBC 
+Let's now prove the theorem:   
+<!-- Introduce hybrid -->  
+We start by introducing the $\textit{hybrid}$ oracle to the game _draw hybrid_ (Does normal CBC, except $E_K$ is replaced by R, where R only takes and outputs bit strings of length n)
+
+<!-- Argue for the Adv(real, hybrid) -->
+Right off the bat, since the $\textit{only}$ difference between the hybrid and real game is that $E_K$ is replaced with $R$, we must have: 
+$$Adv_A(O_{real}, O_{hybrid}) = |p(A,real) - p(A,hybrid)| \leq \epsilon$$
+
+If this was not the case, $\textit{A}$ could be used to distinguish between $E_K$ and a random function with advantage greater than $\epsilon$, contradicting our assumption that $(G, E, D)$ was PRF-secure.  
+
+<!-- Use this to create an upperbound on Adv(real, ideal) -->
+Now note that if we are in the ideal case, the oracle does $\textit{not}$ use CBC, but simply outputs $N+1$ blocks, where $N$ is the number of blocks in the input. It should now be difficult for $\textit{A}$ to distinguish between the ideal and hybrid case, since the hybrid case outputs a concatenation of random blocks, also yielding $N+1$ random blocks, $\textit{UNLESS}$ a certain bad event happens. We define BAD as; if at any point during the hybrid game, the function R receives an input that it has received before in this game. In this case we will have an input collision, which will yield a repeated block. This could hint $\textit{A}$ that he is in the hybrid case. Therefore, his advantage in distinguishing hybrid from ideal must be bounded by: 
+$$|p(A,hybrid) - p(A,ideal)| \leq Pr(BAD)$$
+
+If we add our two inequalities, we get: 
+$$|p(A,real) - p(A,hybrid)| + |p(A,hybrid) - p(A,ideal)| = |p(A,real) - p(A,ideal)| = Adv_A(O_{real}, O_{ideal}) \leq \epsilon + Pr(BAD)$$
+
+<!-- Estimate P(BAD) => give upperbound (this upperbound is \epsilon) => this upperbound is then probability of a successful chosen plaintext attack on the new system. -->
+So now, we just have to estimate $Pr(BAD)$ by bounding it. Let $M_j$ be the event that a collision occurs after j calls to R. Clearly $P(M1) = 0$. Using the Law of Total Probability, we have that:
+$\begin{aligned}
+  P[M_j] &= 
+    P[M_j |M_{j-1}]P[M_{j-1}] + P[M_j | \lnot M_{j-1}]P[\lnot M_{j-1}] 
+    &&\text{(Law of Total Probability)}\\
+    &\leq P[M_{j-1}] + P[M_j | \lnot M_{j-1}] \\
+    &= P[M_{j-1}] + \frac{(j-1)}{2^n}
+\end{aligned}$  
+The last probability on the right hand side is equal to $\frac{(j-1)}{2^n}$: First, since $M_{j-1}$ did not occur we have seen $j - 1$ different inputs before. Second, the new input nr. $j$ is the XOR of some message block and an independently chosen random block (either a y0-value chosen by the oracle or an output from R), it is therefore uniformly chosen.
+We conclude that in fact
+
+$$P[M_j] \leq (1+2+\ldots + (j-1)) \leq \frac{j^2}{2^n}$$
+
+Now we've provided a bound for all j's (calls to R).
+Since the total number of calls is at most $\mu/n$, we can replace j with $\mu/n$. Thus it follows that $P(BAD) \leq \frac{\mu^2}{n^2\cdot2^n}$ and we are done.
+
+<!-- ------------APPENDIX--------------------- --> 
+## Appendix
+
+### DES (Data Encryption Standard) 
+DES is a block cipher: $\textit{G}$ outputs a $\textit{fixed}$ length key, chosen uniformly at random, takes as input a bitstring of $\textit{fixed}$ length and outputs a ciphertext of the $\textit{same}$ length. Furthermore, it is deterministic, such that under a fixed key, any unique input maps to a unique output.
+
+Specifically, DES uses $|K| = 56$ bits and $|x|, |y| = 64$ bits. It uses a 16-round $\textit{Feistel}$ structure for its encryption, which looks like: _draw_
+
+![](images/symmetric-cryptosystems/DES-feistel.png)
+
+The characteristics of a Feistel cipher is that it computes some function each round, involving a \textit{round} key and some degree of both permutation and substitution as advised by Shannon, when we want to achieve security. A so-called \textit{Key Schedule} is responsible for generating each round key, which in the DES case generates 16, 48-bit keys from the 56-bit key. 
+
+We simply refer to this function as the \textit{f}-function: 
+$$f(R,K) = P(S(K \oplus E(R)))$$
+
+![](images/symmetric-cryptosystems/DES-f-function.png)
+
+It takes a 32-bit block as input, $\textit{e}$xpands this to 48 bits and XOR's the expansion with the round key of the corresponding round. It then $\textit{s}$ubstitutes the 48-bits, using 8 $\textit{substitution boxes}$ and concatenates their output, yielding 32 bits. It is important to note that each substitution box is a $\textit{non-linear}$ function, which ensures that the input block of DES cannot be retrieved using linear algebra. Finally, the 32-bits are $\textit{p}$ermuted.
+<!-- May want to expand more on the design choices of this structure (Section 6.1.2) 
+Avalanche effect of S-boxes: Flipping one bit will change entire output 
+We use expansion to make it more difficult for the adversary to control the input. Each expansion is sent into two different s-boxes (substitution-boxes). 
+We use several smaller functions (s-boxes) since a table of 2^6 is feasible, while e.g. a table of 2^32 is not. -->
+
+One of the main issues with DES today, is that the key is too short. It $\textit{is}$ feasible to search through all $|\keyspace| = 2^{56}$ possible keys. This is why AES was created, using key-sizes 128, 192 and 256.
+
+### The computations of the oracles during CPA proof
+**REAL**  
+$\begin{aligned}
+CBC(m) \Rightarrow \text{choose random} \quad y_0 \\
+\Rightarrow E(y_0 \oplus x_1) = y_1\\
+\Rightarrow E(y_1 \oplus x_2) = y_2 \\
+\cdots \\
+\Rightarrow y_0,y_1,\ldots,y_t
+\end{aligned}
+$
+**IDEAL**  
+$$R(m) = c = y_0,y_1,\ldots,y_t$$
+
+**HYBRID**  
+$
+\begin{aligned}
+CBC(m) \Rightarrow \text{choose random} \quad y_0 \\
+\Rightarrow R(y_0 \oplus x_1) = y_1\\
+\Rightarrow R(y_1 \oplus x_2) = y_2 \\
+\cdots \\
+\Rightarrow y_0,y_1,\ldots,y_t
+\end{aligned} 
+$
 \newpage
 
 # Public-key cryptography from Factoring (Chapter 7 & 8)
