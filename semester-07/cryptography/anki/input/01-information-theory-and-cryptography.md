@@ -1,75 +1,113 @@
 # Information theory and Cryptography (AU, winter 2023)
 
-## Which 3 sets define a cryptosystems values?
+## What is the definition of Perfect security?
 
-- The key space $\keyspace$  
-- The plaintext space $\plainspace$  
-- The ciphertext space $\cipherspace$  
+**Definition 5.1:** A cryptosystem has perfect security if for all $x \in
+\plainspace$ and $y \in \cipherspace$, it holds that $P[x|y] = P[x].$  
+**TLDR:** Information about the ciphertext gives you _no_ information about
+the plaintext.
 
-## Which 3 algorithms define a cryptosystem?
+## What are the requirements in order to acheive Perfect Security?
 
-- $G \rightarrow K \in \keyspace$ (\textit{G}enerates keys): Probabilistic. Usually uniform in $\keyspace$.  
-- $E: E_K(x) = y \in \cipherspace$ ($\textit{E}$ncrypts plaintexts): (Probabilistic). Ciphertext's probability distribution is determined by \textit{K} and \textit{x}, typically uniform in some subset of the ciphertexts.  
-- $D: D_K(y) = x \in \plainspace$ ($\textit{D}$ecrypts ciphertexts): (Probabilistic)  
+**Theorem - $|\keyspace| \geq |\cipherspace| \geq |\plainspace|$:** If you have
+perfect security then $|\keyspace| \geq |\cipherspace| \geq |\plainspace|$.  
+**TLDR:** If you have perfect security your key can not be shorter than your
+ciphertext, which cannot be shorter than your plaintext.
 
-## Which relationship between the algorithms do we require for all cryptosystems?
+## What is Entropy?
 
-For any $x \in \plainspace$, $x = D_K(E_K(x))$ 
-**TLDR:** For any key $\textit{K}$ output by $\textit{G}$, correct decryption is possible.  
+**Definition 5.6:** Let $X$ be a random variable that takes values $x_1,
+..., x_n$ with probabilities $p_1, ..., p_n.$ Then the entropy of $X$,
+written $H(X)$, is defined to be: 
+$$H(X) = \sum^n_{i=1} p_i \log_2(1/p_i)$$
+**TLDR:** If an event $A$ occurs with probability $p$ and you are told that
+$A$ occurred, then you have learned $\log_2(1/p)$ bits of information.
+**TLDR:** The entropy $H(X)$ can be described as: 
 
-## What is the definition of PRF-security?
+- How many bits we need to send on average to communicate the value of $X$.
+- The amount of uncertainty you have about $X$ before you are told what the
+  value is.
 
-**Short definition:** $\left\{f_K \mid K \in\{0,1\}^k\right\}$ is $(t, q, \epsilon)$ PRF-secure if $Adv_A\left(O_{\text {Real }}, O_{\text {Ideal }}\right) \leq \epsilon$  
+## What are the bounds for Entropy?
 
-**Formal definition:** We say that $\left\{f_K \mid K \in\{0,1\}^k\right\}$ is $(t, q, \epsilon)$ PRF-secure, if any adversary $A$ that runs in time at most $t$ and makes at most $q$ queries to the oracle, satisfies $Adv_A\left(O_{\text {Real }}, O_{\text {Ideal }}\right) \leq \epsilon$
+**Theorem 5.7:** For a random variable $X$ taking $n$ possible values, it
+holds that $0 \leq H(X) \leq \log_2(n)$. Furthermore, $H(X) = 0$ **iff**
+one value $X$ has probability 1 (and the others 0). $H(X) = log_2(n)$ **iff**
+it is uniformly distributed, i.e., all probabilities are $1/n$.  
+**TLDR:** If the entropy of $X$ is 0 there is no uncertainty, meaning that
+we know the value of $X$. If the entropy of $X$ is 1 then the uncertainty
+of $X$ is highest meaning that all possible values of $X$ have the same
+probability.
 
-Where $\left\{f_K \mid K \in\{0,1\}^k\right\}$ denotes a family of functions mapping $\plainspace \rightarrow \cipherspace$. For a symmetric and deterministic encryption scheme $f_K$ is replaced by $E_K$. (Just like the set of all DES functions. Each $f_K: \{0,1\}^n \rightarrow \{0,1\}^m$. The advantage is defined as $Adv_A\left(O_{\text {Real }}, O_{\text {Ideal }}\right) = |p(A,0) - p(A,1)|$.)
+## What is the definition for Conditional Entropy?
 
-## What is the definition of CPA-security?
+**Definition 5.9:** Given the above definition of $H(X \;|\;Y = y_j)$, we define
+the conditional entropy of X given Y to be:
+$$H(X \;|\; Y) = \sum_j P[Y = y_j] H(X \;|\; Y = y_j)$$
 
-**Short definition:** $(G, E, D)$ is $(t, q, \mu, \epsilon)$ CPA-secure if $\operatorname{Adv}_A\left(O_{\text {Real }}, O_{\text {Ideal }}\right) \leq \epsilon$
+## For deterministic cryptosystems, what is the entropy of the key given the ciphertext ($H(K \;|\; C$))?
 
-**Formal definition:** We say the cryptosystem $(G, E, D)$ is $(t, q, \mu, \epsilon)$ CPA-secure, if for any adversary $A$ that runs in time at most $t$, and makes at most $q$ queries to the oracle, with plaintexts consisting of a total of $\mu$ bits, it holds that $\operatorname{Adv}_A\left(O_{\text {Real }}, O_{\text {Ideal }}\right) \leq \epsilon$.
+**Theorem 5.11:** For any cryptosystem with deterministic encryption function, it
+holds that:
+$$H(K \;|\; C) = H(K) + H(P) - H(C)$$
+**TLDR:** Answers how much uncertainty remains about the key given the ciphertext
 
-## Draw the PRF game
+## What is Redundancy in a language
 
-![](images/symmetric-cryptosystems/PRF-CPA-Security.png)
+**Definition - Redundancy:** Given a language $L$ and a plaintext space $\plainspace$,
+the _redundancy_ of the language is the amount of superflous information is
+contained, on avarage in the language $L$.
+$$R_L = \frac{\log(|\plainspace|) - H_L}{\log(|\plainspace|)} = 1 - \frac{H_L}{\log(|\plainspace|)}$$
+$H_L$ is a measure of the number of bits of information each letter contains
+in the language $L$, on average. For English, we have that $H_L$ is (very
+approximately) 1.25 bits per letter.
+$$H_L = \lim_{n \mapsto \infty} H(P_n)/n$$  
+**TLDR:** A language contains redundancy, which is how much duplicate
+information there is on avarage in the language.  
+**Example:** The following sentance displays redundancy in english:
 
-## Draw the CPA game
+> _"cn y rd th fllwng sntnc, vn f t s wrttn wtht vcls?"_
 
-![](images/symmetric-cryptosystems/PRF-CPA-Security.png)
+## What is the definition for Spurious Keys?
 
-## Draw the Hybrid game
+**Definition - Spurious Keys:** If an adversary has a ciphertext $y$ that
+he wants to decrypt, he can try all keys and see if $y$ decrypts to meaningful
+english. If $y$ decrypts to meaningful english under the _wrong_ key, then
+that key is said to be a _spurious key._  
+**TLDR:** A spurious key is a key that _seems_ to be the correct key for a
+ciphertext but is not.
 
-(Does normal CBC, except $E_K$ is replaced by R, where R only takes and outputs bit strings of length n)
+## What is the formula for the number of Spurious Keys?
 
-## How is the CBC theorem defined?
+**Definition - Number of Spurious Keys:** The average number of
+spurious keys, taken over all choices of ciphertexts of length $n$: 
+$$sp_n = \sum_{\vec{y} \in \cipherspace^n} P[y](|K(\vec{y})| - 1) = \sum_{\vec{y} \in \cipherspace^n} P[y]|K(\vec{y})| - 1$$
+Given a ciphertext $\vec{y}$, we use $K(\vec{y})$ to denote the set of keys
+that are possible given this ciphertext. More precisely, a key $K$ is in
+this set if decryption of $\vec{y}$ under $K$ yields a plaintext that could
+occur with non-zero probability:
+$$K(\vec{y}) = \{ K \in \keyspace \; | \; P[D_K(\vec{y} > 0)]\}$$
+**TLDR:** This formula for $sp_n$ describes the average number of spurious
+keys of a ciphertext $\vec{y}$ of length $n$.
 
-**Theorem:**
-    If $(G, E, D)$ is $\left(t, q, \epsilon\right)$ PRF-secure then $(G', E', D')$ using CBC is $(t^{\prime}, q^{\prime} \mu, \epsilon^{\prime})$ CPA-secure for any $q^{\prime}$, and for
-$$
-\epsilon^{\prime}=\epsilon+\left(\frac{\mu}{n}\right)^2 \cdot \frac{1}{2^n} = \epsilon+\frac{\mu^2}{n^2\cdot2^n} 
-$$
-provided that
-$$
-t^{\prime} \leq t, \quad \frac{\mu}{n} \leq q
-$$
+## What is the definition for Unicity Distance?
 
-## How is the bound on P[BAD] derived (this one needs refinement)?
+**Definition 5.12:** The unicity distance $n_0$ of a cryptosystem is the
+minimal length of plaintexts such that $sp_{n_0} = 0$, if such a value exists,
+and $\infty$ otherwise.  
+**TLDR:** The unicity distance tells you how many times you can encrypt
+something where multiple keys seem to be valid keys.
 
-$\begin{aligned}
-  P[M_j] &= 
-    P[M_j |M_{j-1}]P[M_{j-1}] + P[M_j | \lnot M_{j-1}]P[\lnot M_{j-1}] 
-    &&\text{(Law of Total Probability)}\\
-    &\leq P[M_{j-1}] + P[M_j | \lnot M_{j-1}] \\
-    &= P[M_{j-1}] + \frac{(j-1)}{2^n}
-\end{aligned}$
+## For a deterministic cryptosystem, what is the bound for the Unicity Distance?
 
-**Note:**  
-The last probability on the right hand side is equal to $\frac{(j-1)}{2^n}$: First, since $M_{j-1}$ did not occur we have seen $j - 1$ different inputs before. Second, the new input nr. $j$ is the XOR of some message block and an independently chosen random block (either a y0-value chosen by the oracle or an output from R), it is therefore uniformly chosen.
-We conclude that in fact
-
-$$P[M_j] \leq (1+2+\ldots + (j-1)) \leq \frac{j^2}{2^n}$$
-
-Now we've provided a bound for all j's (calls to R).
-Since the total number of calls is at most $\mu/n$, we can replace j with $\mu/n$. Thus it follows that $P(BAD) \leq \frac{\mu^2}{n^2\cdot2^n}$ and we are done.
+**Theorem 5.13:** Assume we have a cryptosystem with deterministic encryption
+function, where the plaintext and ciphertext alphabets have the same size
+$(|\cipherspace| = |\plainspace|)$, and where keys are uniformly chosen from
+$\keyspace$. Assume we use the system to encrypt sequences of letters from
+language $L$. Then
+$$n_0 \geq \frac{\log(|\keyspace|)}{R_L \log(|\plainspace|)}$$
+**TLDR:** If we reuse keys, our unconditional security will always be gone,
+once we encrypt enough plaintext under the same key. The only exception is
+the case where $R_L = 0$ which leads to $n_0$ being $\infty$. Which makes
+sense, if every sequence of characters is a plaintext that can occur, the
+adversary can never exclude a key.
