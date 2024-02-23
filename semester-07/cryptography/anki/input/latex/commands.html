@@ -15,5 +15,9 @@ MathJax.config.tex.macros = {
       ran: ["{ \mathrm{#1} }", 1],
       ranvec: ["{ \boldsymbol{\ran{#1}} }", 1]
 };
-MathJax.startup.getComponents();
+if (typeof is_already_run == 'undefined') {
+  is_already_run = true
+  MathJax.startup.getComponents();
+}
+//MathJax.startup.getComponents();
 </script>

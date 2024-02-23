@@ -28,10 +28,12 @@ header: |
 
 Note that these notes are based on the 2023v3 version of the cryptography book.
 
+<!--
 \setcounter{secnumdepth}{0}
 \setcounter{tocdepth}{3}
 \tableofcontents
 \pagebreak
+-->
 
 \newpage
 
@@ -139,6 +141,10 @@ $\enddef$
 - Perfect Security
 - Entropy
 - Unicity Distance
+  - $H_L$
+  - Redundancy
+  - Spurious Keys
+  - Unicity Distance
 
 **Disposition (Berg):**
 
@@ -191,7 +197,6 @@ $A$ occurred, then you have learned $\log_2(1/p)$ bits of information.
 - The amount of uncertainty you have about $X$ before you are told what the
   value is.
 $\enddef$
-
 
 **Theorem 5.7:** For a random variable $X$ taking $n$ possible values, it
 holds that $0 \leq H(X) \leq \log_2(n)$. Furthermore, $H(X) = 0$ **iff**
@@ -365,37 +370,25 @@ $\qed$
 \newpage
 
 # Symmetric (secret-key) cryptography (Chapter 4.1 + 6)
-## Disposition (Kirk)
+**Disposition (Kirk)**
 
-<!-- TODO: Add subbullets -->
-- Definitely AES
-- PRF and CPA security
-- CBC/CTR
+- Symmetric Cryptosystems  
+- CBC
+- PRF
+- CPA
 - CPA security proof for CBC/CTR
-- At least understand the block cipher...
 
-## Disposition (Berg)
-- Symmetric cryptosystems  
-  - 3 sets $\rightarrow$ 3 algorithms
-- PRF-security 
-  - Block ciphers
-- CPA-security 
-  - CBC 
-  - CBC proof 
+## Symmetric Cryptosystems
 
-## Notes
-
-### Symmetric Cryptosystems
-![Symmetric Cryptosystem](images/symmetric-cryptosystems/symmetric_cryptosystem.jpg)
-(Optionally something related to confidentiality and authenticity)
-
-For a symmetric cryptosystem, we need 3 finite sets which will define all possible values of the system:
+For a symmetric cryptosystem, we need 3 finite sets which will define all
+possible values of the system:
 
 - The key space $\keyspace$  
 - The plaintext space $\plainspace$  
 - The ciphertext space $\cipherspace$  
 
-To generate values from these sets, we must have 3 corresponding algorithms, each responsible for outputting values of a set:  
+To generate values from these sets, we must have 3 corresponding algorithms,
+each responsible for outputting values of a set:
 
 - $G \rightarrow K \in \keyspace$ (\textit{G}enerates keys): Probabilistic. Usually uniform in $\keyspace$.  
 - $E: E_K(x) = y \in \cipherspace$ ($\textit{E}$ncrypts plaintexts): (Probabilistic). Ciphertext's probability distribution is determined by \textit{K} and \textit{x}, typically uniform in some subset of the ciphertexts.  
@@ -403,12 +396,17 @@ To generate values from these sets, we must have 3 corresponding algorithms, eac
 
 This triple of algorithms (G, E, D) constitutes the given cryptosystem.
 
-We always require the following basic relationship between $(G, E, D)$: For any $x \in \plainspace$, $x = D_K(E_K(x))$ 
-**TLDR:** For any key $\textit{K}$ output by $\textit{G}$, correct decryption is possible.  
-This says nothing about security however.
+We always require the following basic relationship between $(G, E, D)$:
+For any $x \in \plainspace$, $x = D_K(E_K(x))$ This says nothing about
+security however.  
 
-### PRF Security
-In terms of security, we would like the encryption schemes of our system to be $\textit{pseudo}$-randomly secure, meaning that it must act like a pseudo-random function (PRF). In general, a PRF is a function that is inherently $\textit{deterministic}$ but behaves like a $\textit{random}$ one. In order to model this, we say that some adversary plays the following game: _draw PRF Game_
+## PRF Security
+In terms of security, we would like the encryption schemes of our system
+to be $\textit{pseudo}$-randomly secure, meaning that it must act like
+a pseudo-random function (PRF). In general, a PRF is a function that is
+inherently $\textit{deterministic}$ but behaves like a $\textit{random}$
+one. In order to model this, we say that some adversary plays the following
+game: _draw PRF Game_
 
 We want the $Adv_A(O_{real}, O_{ideal}) \leq \epsilon$. If this is the case, we say that the probability of him succeeding in an attack on our system is $\textit{negligible}$, meaning we deem it infeasible in practice. 
  
@@ -420,7 +418,7 @@ Where $\left\{f_K \mid K \in\{0,1\}^k\right\}$ denotes a family of functions map
 
 Examples of PRF-secure cryptosystems which we've seen in the course are DES and AES, which are two types of block ciphers. They have the following properties: $\textit{G}$ outputs a $\textit{fixed}$ length key, chosen uniformly at random, takes as input a bitstring of $\textit{fixed}$ length and outputs a ciphertext of the $\textit{same}$ length. 
 
-### CPA Security
+## CPA Security
 Unfortunately, despite a cryptosystem being PRF-secure, it still suffers from information leakage because an adversary can easily detect duplicate messages, $\textit{if we're using the same key}$, since each input maps to the same output, once the key is fixed. Thus, we would like introduce some notion of randomness in $\textit{E}$. For such probabilistic encryption schemes we require that the adversary $\textit{cannot}$ tell the difference between between a real encryption of a message $\textit{x}$ he chooses. Thus, duplicate messages can no longer be detected.
 
 In other words, we want our encryption schemes to be secure against a chosen-plaintext-attack (CPA):
@@ -455,7 +453,7 @@ $(G, E, D)$ can handle, the probability of the attack being successful will be n
 We'll refer to $\textit{blocks}$ as bit strings of length $\textit{n}$, which is the block-size of the original system. 
 We note that $(\frac{\mu}{n})^2$ is the number of blocks that are encrypted during CBC, squared. $\epsilon'$ and $\epsilon$ will then be roughly equal as long as the number of blocks is much less than $2^n$, since the fraction would then go toward 0. A heuristic given in the book is $(\frac{\mu}{n})^2 << 2^{n/2} = \sqrt{2^n}$.
 
-#### Proof: CBC 
+### Proof: CBC 
 Let's now prove the theorem:   
 <!-- Introduce hybrid -->  
 We start by introducing the $\textit{hybrid}$ oracle to the game _draw hybrid_ (Does normal CBC, except $E_K$ is replaced by R, where R only takes and outputs bit strings of length n)
@@ -471,17 +469,24 @@ Now note that if we are in the ideal case, the oracle does $\textit{not}$ use CB
 $$|p(A,hybrid) - p(A,ideal)| \leq Pr(BAD)$$
 
 If we add our two inequalities, we get: 
-$$|p(A,real) - p(A,hybrid)| + |p(A,hybrid) - p(A,ideal)| = |p(A,real) - p(A,ideal)| = Adv_A(O_{real}, O_{ideal}) \leq \epsilon + Pr(BAD)$$
+$$
+\begin{aligned}
+  |p(A,real) - p(A,ideal)| &\leq |p(A,real) - p(A,hybrid)| + |p(A,hybrid) - p(A,ideal)| \\
+    Adv_A(O_{real}, O_{ideal}) &\leq \epsilon + Pr(BAD)
+\end{aligned}
+$$
 
 <!-- Estimate P(BAD) => give upperbound (this upperbound is \epsilon) => this upperbound is then probability of a successful chosen plaintext attack on the new system. -->
 So now, we just have to estimate $Pr(BAD)$ by bounding it. Let $M_j$ be the event that a collision occurs after j calls to R. Clearly $P(M1) = 0$. Using the Law of Total Probability, we have that:
-$\begin{aligned}
+$$
+\begin{aligned}
   P[M_j] &= 
     P[M_j |M_{j-1}]P[M_{j-1}] + P[M_j | \lnot M_{j-1}]P[\lnot M_{j-1}] 
     &&\text{(Law of Total Probability)}\\
     &\leq P[M_{j-1}] + P[M_j | \lnot M_{j-1}] \\
     &= P[M_{j-1}] + \frac{(j-1)}{2^n}
-\end{aligned}$  
+\end{aligned}
+$$  
 The last probability on the right hand side is equal to $\frac{(j-1)}{2^n}$: First, since $M_{j-1}$ did not occur we have seen $j - 1$ different inputs before. Second, the new input nr. $j$ is the XOR of some message block and an independently chosen random block (either a y0-value chosen by the oracle or an output from R), it is therefore uniformly chosen.
 We conclude that in fact
 
@@ -517,19 +522,20 @@ One of the main issues with DES today, is that the key is too short. It $\textit
 
 ### The computations of the oracles during CPA proof
 **REAL**  
-$\begin{aligned}
+$$
+\begin{aligned}
 CBC(m) \Rightarrow \text{choose random} \quad y_0 \\
 \Rightarrow E(y_0 \oplus x_1) = y_1\\
 \Rightarrow E(y_1 \oplus x_2) = y_2 \\
 \cdots \\
 \Rightarrow y_0,y_1,\ldots,y_t
 \end{aligned}
-$
+$$
 **IDEAL**  
 $$R(m) = c = y_0,y_1,\ldots,y_t$$
 
 **HYBRID**  
-$
+$$
 \begin{aligned}
 CBC(m) \Rightarrow \text{choose random} \quad y_0 \\
 \Rightarrow R(y_0 \oplus x_1) = y_1\\
@@ -537,42 +543,44 @@ CBC(m) \Rightarrow \text{choose random} \quad y_0 \\
 \cdots \\
 \Rightarrow y_0,y_1,\ldots,y_t
 \end{aligned} 
-$
+$$
 \newpage
 
 # Public-key cryptography from Factoring (Chapter 7 & 8)
-## Disposition (Kirk)
 
-## Disposition (Berg)
+**Disposition (Kirk):**
 
-## Notes
+## RSA:
+
+**Definition The RSA algorithm:**
+
+1. On input (even) security parameter value $k$, choose random $k/2$-bit
+   primes $p, q$, and set $n = pq$.
+2. Select a number $e \in Z^*_{(p-1)(q-1)}$ and set $d = e-1 \mod
+   (p - 1)(q - 1)$.
+3. Output public key $pk = (n, e)$ and secret key $sk = (n, d)$. For RSA,
+   we always have $\plainspace = \cipherspace = Z_n$.
+
+Encryption and decryption works as follows:
+$$E_{(n,e)}(x) = x^e \mod n$$
+$$D_{(n,d)}(y) = y^d \mod n$$
+\enddef
+
+
+
 
 \newpage
-
 # Public-key cryptography based on discrete log and LWE (Chapter 9 & 10, definition of CPS security in chapter 8)
-## Disposition (Kirk)
 
-## Disposition (Berg)
-
-## Notes
+**Disposition (Kirk):**
 
 \newpage
 
 # Symmetric authentication and hash functions (Chapter 11)
-## Disposition (Kirk)
-
-## Disposition (Berg)
-
-## Notes
 
 \newpage
 
 # Signature schemes (Chapter 12)
-## Disposition (Kirk)
-
-## Disposition (Berg)
-
-## Notes
 
 \newpage
 

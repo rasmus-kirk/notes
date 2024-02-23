@@ -1,59 +1,50 @@
 {
-  description = "A report built with Pandoc, XeLaTex and a custom font";
+  description = "Python example flake for Zero to Nix";
 
-  outputs = { self, nixpkgs }: {
-    packages.x86_64-linux.report = (
-      let
-        system = "x86_64-linux";
-        pkgs = nixpkgs.legacyPackages.${system};
-        #fonts = pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; };
-      in
-        pkgs.stdenv.mkDerivation {
-          name = "markdown-flash-cards";
-          src = ./.;
-          buildInputs = with pkgs; [
-            markdown-anki-decks
-          ];
-          phases = ["unpackPhase" "buildPhase"];
-          buildPhase = ''
-            dir="input"
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+  };
 
-            mkdir -p $out
+  outputs = { self, nixpkgs }: let
+    # Systems supported
+    allSystems = [
+      "x86_64-linux" # 64-bit Intel/AMD Linux
+      "aarch64-linux" # 64-bit ARM Linux
+      "x86_64-darwin" # 64-bit Intel macOS
+      "aarch64-darwin" # 64-bit ARM macOS
+    ];
 
-            # Zip doesn't support dates before 1980, so set the date accordingly
-            unset SOURCE_DATE_EPOCH
-            touch `find . -type f`
-            export SOURCE_DATE_EPOCH=315532800
+    # Helper to provide system-specific attributes
+    forAllSystems = f: nixpkgs.lib.genAttrs allSystems (system: f {
+      pkgs = import nixpkgs { inherit system; };
+    });
+  in {
+    packages = forAllSystems ({ pkgs }: with pkgs.lib; {
+      flashcards = pkgs.stdenv.mkDerivation {
+        name = "markdown-flash-cards";
+        src = ./.;
+        buildInputs = let
+          ghcPlusPkgs = pkgs.haskellPackages.ghcWithPackages (p: with p; [
+            random
+            random-shuffle
+            pandoc
+            text
+            turtle
+            shh-extras
+          ]);
+        in [
+          ghcPlusPkgs
+          pkgs.pandoc
+          pkgs.texlive.combined.scheme-full
+        ];
+        phases = ["unpackPhase" "buildPhase"];
+        buildPhase = ''
+          mkdir -p $out
+          runhaskell haskell/main.hs input $out haskell
+        '';
+      };
+    });
 
-            #tmpDir="$TMP"
-            tmpDir="$out/tmp"
-            preDir="$tmpDir/pre"
-            doneDir="$tmpDir/done"
-            mkdir -p "$tmpDir"
-            mkdir -p "$doneDir"
-            mkdir -p "$preDir"
-
-            for file in "$dir"/*; do
-                # Check if the current item is a file
-                if [ -f "$file" ]; then
-                    filename=$(basename "$file")
-
-                    echo "Processing file: $filename"
-                    # Replace double dollar signs
-                    sed ':a;N;$!ba;s/\$\$\([^$]*\)\$\$/\\\\\[\1\\\\\]/g' "$dir/$filename" > "$preDir/$filename"
-                    #sed ':a;N;$!ba;s/\$\$\([^$]*\)\$\$/\[\$\$\]\1\[\/\$\$\]/g' "$dir/$filename" > "$tmpDir/pre/$filename"
-                    #sed ':a;N;$!ba;s/\$\$\([^$]*\)\$\$/\\[\1\\]/g' "$dir/$filename" > "$tmpDir/pre/$filename"
-                    # Replace single dollar signs
-                    sed ':a;N;$!ba;s/\$\([^$]\+\)\$/\\\\\(\1\\\\\)/g' "$preDir/$filename" > "$doneDir/$filename"
-                    #sed ':a;N;$!ba;s/\(\$[^$]*\$\)/\[$]\1[\/$]/g' "$tmpDir/pre/$filename" > "$tmpDir/$filename"
-                fi
-            done
-
-            mdankideck "$doneDir" "$out"
-          '';
-        }
-    );
-
-    defaultPackage.x86_64-linux = self.packages.x86_64-linux.report;
-    };
+    defaultPackage.x86_64-linux = self.packages.x86_64-linux.flashcards;
+  };
 }

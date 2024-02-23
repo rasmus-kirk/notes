@@ -1,0 +1,56 @@
+% Syntax highlighting:
+\usepackage[normalem]{ulem}
+\usepackage{xcolor}
+\usepackage{listings}
+
+% Gruvbox
+\definecolor{bg}{HTML}{fbf1c7}
+\definecolor{bgt}{HTML}{fbf1c7}
+\definecolor{bge}{HTML}{fbf8e4}
+\definecolor{bg0}{HTML}{f9f5d7}
+\definecolor{fg0}{HTML}{282828}
+\definecolor{ltred}{HTML}{cc241d}
+\definecolor{ltgreen}{HTML}{98971a}
+\definecolor{ltyellow}{HTML}{d79921}
+\definecolor{ltblue}{HTML}{458588}
+\definecolor{ltpurple}{HTML}{b16286}
+\definecolor{ltaqua}{HTML}{689da6}
+\definecolor{ltorange}{HTML}{d65d0e}
+\definecolor{ltgrey}{HTML}{7c6f64}
+\definecolor{dkred}{HTML}{9d0006}
+\definecolor{dkgreen}{HTML}{79740e}
+\definecolor{dkyellow}{HTML}{b57614}
+\definecolor{dkblue}{HTML}{076678}
+\definecolor{dkpurple}{HTML}{8f3f71}
+\definecolor{dkaqua}{HTML}{427b58}
+\definecolor{dkgrey}{HTML}{3c3836}
+
+\renewcommand{\insertnavigation}[1]{}
+
+% Beamer Color modification
+
+% Add slide numbers
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[ltblue]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+
+% Set gruvbox inspired colors
+\setbeamercolor{block title}{bg=ltblue!30!bge, fg=dkblue!40!fg0}
+\setbeamercolor{block body}{bg=ltblue!15!bge, fg=fg0}
+\setbeamercolor{section number projected}{bg=dkblue,fg=bge}
+\setbeamercolor{structure}{fg=dkblue}% to modify  immediately all palettes
+\setbeamercolor{title}{fg=bge}
+\setbeamercolor{title in head/foot}{fg=bge}
+\setbeamercolor{author}{bg=dkblue, fg=bge}
+\setbeamercolor{author in head/foot}{bg=ltblue,fg=bge}
+\setbeamercolor{institute in head/foot}{fg=bge}
+\setbeamercolor{date}{fg=fg0}
+\setbeamercolor{institute}{fg=fg0}
+\setbeamercolor{background canvas}{bg=bge}
+\setbeamercolor{normal text}{fg=fg0}
+\setbeamercolor{titlelike}{fg=bge}
+\setbeamercolor{seperation line}{fg=bge}
+
